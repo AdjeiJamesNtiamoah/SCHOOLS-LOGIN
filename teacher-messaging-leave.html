@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Messaging & Leave | Flawless Graphics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    body {
+        background:#071833;
+        color:white;
+        margin:0;
+        font-family:Inter, Arial;
+    }
+
+    header {
+        background:#0f254d;
+        padding:20px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        box-shadow:0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .container {
+        padding:25px;
+    }
+
+    h2, h3 {
+        margin:0 0 15px;
+        color:#aee0ff;
+    }
+
+    .btn {
+        background:#00a8ff;
+        padding:12px 18px;
+        border:none;
+        border-radius:8px;
+        color:white;
+        cursor:pointer;
+        font-weight:600;
+    }
+    .btn:hover { background:#0089d6; }
+
+    .box {
+        background:#102a57;
+        padding:20px;
+        margin-bottom:25px;
+        border-radius:12px;
+        box-shadow:0 0 10px rgba(0,0,0,0.3);
+    }
+
+    label { font-size:14px; }
+
+    input, textarea, select {
+        width:100%;
+        padding:10px;
+        margin-top:7px;
+        margin-bottom:15px;
+        border-radius:6px;
+        border:none;
+        background:#16366c;
+        color:white;
+    }
+
+    .message-item {
+        background:#15386b;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:15px;
+    }
+
+    .msg-sender {
+        color:#74c7ff;
+        font-weight:bold;
+    }
+
+    .msg-text {
+        margin-top:6px;
+        font-size:15px;
+    }
+
+    .msg-date {
+        margin-top:5px;
+        font-size:12px;
+        opacity:0.7;
+    }
+
+    .leave-item {
+        background:#173d75;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:15px;
+        border-left:5px solid #00a8ff;
+    }
+
+    .status {
+        font-weight:bold;
+        padding:5px 10px;
+        border-radius:5px;
+        font-size:12px;
+    }
+    .approved { background:#1fa851; }
+    .pending { background:#dcb215; }
+    .rejected { background:#d9534f; }
+
+    .back-btn {
+        background:#4caf50;
+        padding:10px 20px;
+        border:none;
+        border-radius:8px;
+        color:white;
+        cursor:pointer;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2 id="titleName">Messaging & Leave</h2>
+    <button class="back-btn" onclick="window.location='teacher-profile.html'">Back</button>
+</header>
+
+<div class="container">
+
+    <!-- SEND MESSAGE -->
+    <div class="box">
+        <h3>Send Message to HR</h3>
+
+        <label>Subject</label>
+        <input type="text" id="msgSubject" placeholder="Example: Request for materials">
+
+        <label>Message</label>
+        <textarea id="msgText" placeholder="Type your message here..."></textarea>
+
+        <button class="btn" onclick="sendMessage()">Send Message</button>
+    </div>
+
+    <!-- MESSAGE HISTORY -->
+    <div class="box">
+        <h3>Your Messages</h3>
+        <div id="messageList"></div>
+    </div>
+
+    <!-- LEAVE REQUEST -->
+    <div class="box">
+        <h3>Apply for Leave</h3>
+
+        <label>Leave Type</label>
+        <select id="leaveType">
+            <option value="">-- Select Leave Type --</option>
+            <option>Sick Leave</option>
+            <option>Casual Leave</option>
+            <option>Maternity Leave</option>
+            <option>Official Leave</option>
+        </select>
+
+        <label>Start Date</label>
+        <input type="date" id="leaveStart">
+
+        <label>End Date</label>
+        <input type="date" id="leaveEnd">
+
+        <label>Reason</label>
+        <textarea id="leaveReason" placeholder="Explain your reason..."></textarea>
+
+        <button class="btn" onclick="applyLeave()">Submit Leave Request</button>
+    </div>
+
+    <!-- LEAVE HISTORY -->
+    <div class="box">
+        <h3>Your Leave History</h3>
+        <div id="leaveList"></div>
+    </div>
+
+</div>
+
+<script>
+// LOAD ACTIVE TEACHER
+let T = JSON.parse(localStorage.getItem("active_teacher") || "null");
+
+if (!T) {
+    alert("Session expired, login again.");
+    window.location.href = "teacher-login.html";
+}
+
+document.getElementById("titleName").textContent = `${T.name} — Messaging & Leave`;
+
+// === MESSAGE STORAGE ===
+function getMessages() {
+    let all = JSON.parse(localStorage.getItem("teacher_messages") || "{}");
+    return all[T.email] || [];
+}
+
+function saveMessages(list) {
+    let all = JSON.parse(localStorage.getItem("teacher_messages") || "{}");
+    all[T.email] = list;
+    localStorage.setItem("teacher_messages", JSON.stringify(all));
+}
+
+// === SEND MESSAGE ===
+function sendMessage() {
+    let subject = document.getElementById("msgSubject").value.trim();
+    let text = document.getElementById("msgText").value.trim();
+
+    if (!subject || !text) {
+        alert("Subject & message required.");
+        return;
+    }
+
+    let messages = getMessages();
+
+    messages.push({
+        subject,
+        text,
+        date: new Date().toLocaleString(),
+        sender: T.name,
+        teacherEmail: T.email
+    });
+
+    saveMessages(messages);
+
+    displayMessages();
+
+    document.getElementById("msgSubject").value = "";
+    document.getElementById("msgText").value = "";
+
+    alert("Message sent successfully!");
+}
+
+// DISPLAY MESSAGES
+function displayMessages() {
+    let messages = getMessages();
+    let box = document.getElementById("messageList");
+
+    if (messages.length === 0) {
+        box.innerHTML = "<p>No messages yet.</p>";
+        return;
+    }
+
+    box.innerHTML = messages.map(msg => `
+        <div class="message-item">
+            <div class="msg-sender">${msg.sender}</div>
+            <div class="msg-text"><strong>${msg.subject}:</strong> ${msg.text}</div>
+            <div class="msg-date">${msg.date}</div>
+        </div>
+    `).join("");
+}
+
+displayMessages();
+
+
+// === LEAVE SYSTEM ===
+function getLeaveList() {
+    let all = JSON.parse(localStorage.getItem("teacher_leaves") || "{}");
+    return all[T.email] || [];
+}
+
+function saveLeaveList(list) {
+    let all = JSON.parse(localStorage.getItem("teacher_leaves") || "{}");
+    all[T.email] = list;
+    localStorage.setItem("teacher_leaves", JSON.stringify(all));
+}
+
+// APPLY LEAVE
+function applyLeave() {
+    let type = document.getElementById("leaveType").value;
+    let start = document.getElementById("leaveStart").value;
+    let end = document.getElementById("leaveEnd").value;
+    let reason = document.getElementById("leaveReason").value.trim();
+
+    if (!type || !start || !end || !reason) {
+        alert("All fields required.");
+        return;
+    }
+
+    let leaves = getLeaveList();
+
+    leaves.push({
+        type,
+        start,
+        end,
+        reason,
+        status:"Pending",
+        date: new Date().toLocaleDateString()
+    });
+
+    saveLeaveList(leaves);
+    displayLeaves();
+
+    document.getElementById("leaveType").value = "";
+    document.getElementById("leaveStart").value = "";
+    document.getElementById("leaveEnd").value = "";
+    document.getElementById("leaveReason").value = "";
+
+    alert("Leave request submitted!");
+}
+
+// DISPLAY LEAVES
+function displayLeaves() {
+    let leaves = getLeaveList();
+    let box = document.getElementById("leaveList");
+
+    if (leaves.length === 0) {
+        box.innerHTML = "<p>No leave records.</p>";
+        return;
+    }
+
+    box.innerHTML = leaves.map(l => `
+        <div class="leave-item">
+            <p><strong>${l.type}</strong> (${l.start} → ${l.end})</p>
+            <p>${l.reason}</p>
+            <p class="msg-date">Requested on: ${l.date}</p>
+            <span class="status ${l.status.toLowerCase()}">${l.status}</span>
+        </div>
+    `).join("");
+}
+
+displayLeaves();
+</script>
+
+</body>
+</html>
