@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Flawless Graphics</title>
+
+  <style>
+    :root {
+      --bg:#071833;
+      --card:#0e244d;
+      --accent:#00a8ff;
+      --white:#fff;
+      --muted:#cfe8ff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,#04102a,#071833);
+      font-family:Inter,Arial;
+      color:var(--white);
+    }
+    .box{
+      width:360px;
+      background:var(--card);
+      padding:28px;
+      border-radius:12px;
+      box-shadow:0 0 35px rgba(0,0,0,0.4);
+    }
+    h2{ text-align:center; margin:0 0 18px; }
+    label{ display:block; margin-top:12px; font-size:13px; color:var(--muted); }
+    input{
+      width:100%;
+      padding:12px;
+      margin-top:6px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.1);
+      background:rgba(255,255,255,0.06);
+      color:var(--white);
+      font-size:14px;
+    }
+    .auth-btn{
+      margin-top:18px;
+      width:100%;
+      padding:12px;
+      border-radius:8px;
+      background:linear-gradient(90deg,var(--accent),#0075cc);
+      border:0;
+      color:var(--white);
+      cursor:pointer;
+      font-weight:700;
+      box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    }
+    .auth-btn:active{ transform:translateY(1px) }
+    .error{ display:none; background:#ff4d4f; padding:10px; border-radius:8px; margin-top:10px; }
+    a{ color:#9dd6ff; }
+    .center{ text-align:center; margin-top:15px; color:var(--muted); }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2>Organization Login</h2>
+
+    <label>Email</label>
+    <input type="email" id="email" placeholder="admin@company.com">
+
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Enter your password">
+
+    <button class="auth-btn" onclick="login()">Login</button>
+
+    <div id="msgError" class="error"></div>
+
+    <div class="center">
+      No account?
+      <a href="site-register.html">Create Organization</a>
+    </div>
+  </div>
+
+<script>
+/* -----------------------------
+   LOGIN SYSTEM (admin/HR)
+------------------------------ */
+
+const USERS_KEY = "organizations_users";
+
+function readUsers(){
+  try { return JSON.parse(localStorage.getItem(USERS_KEY) || "[]"); }
+  catch(e){ return []; }
+}
+
+async function sha256(text){
+  const buf = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return [...new Uint8Array(hash)]
+    .map(b=>b.toString(16).padStart(2,"0"))
+    .join("");
+}
+
+function showError(msg){
+  const box = document.getElementById("msgError");
+  box.style.display = "block";
+  box.textContent = msg;
+}
+
+/* ---------------------------------
+      Main LOGIN function
+---------------------------------- */
+
+async function login(){
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const pw = document.getElementById("password").value;
+
+  if(!email || !pw){
+    showError("Please enter email and password.");
+    return;
+  }
+
+  const users = readUsers();
+  const hashed = await sha256(pw);
+
+  // Find matching admin user
+  const user = users.find(u => u.email === email && u.pass === hashed);
+
+  if(!user){
+    showError("Incorrect email or password.");
+    return;
+  }
+
+  // Save currently logged-in admin
+  localStorage.setItem("active_org_user", JSON.stringify(user));
+
+  // Save the organization name separately for other pages
+  localStorage.setItem("active_org", user.orgName);
+
+  // Success: redirect
+  window.location.href = "hr-dashboard.html";
+}
+</script>
+</body>
+</html>
