@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Teacher Classes | Flawless Graphics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    body {
+        background:#071833;
+        color:white;
+        margin:0;
+        font-family:Inter, Arial;
+    }
+
+    header {
+        background:#0f254d;
+        padding:20px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        box-shadow:0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .container {
+        padding:25px;
+    }
+
+    h2, h3 {
+        margin:0 0 15px;
+        color:#aee0ff;
+    }
+
+    .btn {
+        background:#00a8ff;
+        padding:12px 18px;
+        border:none;
+        border-radius:8px;
+        color:white;
+        cursor:pointer;
+        font-weight:bold;
+    }
+    .btn:hover { background:#0089d6; }
+
+    .class-card {
+        background:#102a57;
+        padding:20px;
+        margin-bottom:20px;
+        border-radius:12px;
+        box-shadow:0 0 12px rgba(0,0,0,0.35);
+    }
+
+    label {
+        font-size:14px;
+    }
+
+    input, textarea {
+        width:100%;
+        padding:10px;
+        margin-top:7px;
+        margin-bottom:15px;
+        border-radius:6px;
+        border:none;
+        background:#16366c;
+        color:white;
+    }
+
+    .student-tag {
+        display:inline-block;
+        background:#00a8ff;
+        padding:6px 12px;
+        margin:4px;
+        border-radius:20px;
+        font-size:13px;
+    }
+
+    .delete-btn {
+        background:#ff4d4d;
+        padding:8px 12px;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+        color:white;
+        margin-left:10px;
+    }
+
+    .back-btn {
+        background:#4caf50;
+        padding:10px 18px;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+        color:white;
+    }
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2 id="titleName">My Classes</h2>
+    <button class="back-btn" onclick="window.location='teacher-profile.html'">Back</button>
+</header>
+
+<div class="container">
+
+    <h3>Create New Class</h3>
+
+    <div class="class-card">
+        <label>Class Name</label>
+        <input type="text" id="newClassName" placeholder="Example: Basic 4 Science">
+
+        <label>Subject</label>
+        <input type="text" id="newClassSubject" placeholder="Science">
+
+        <label>Description</label>
+        <textarea id="newClassDesc" placeholder="Short description about this class"></textarea>
+
+        <button class="btn" onclick="addClass()">Add Class</button>
+    </div>
+
+    <h3>Your Classes</h3>
+    <div id="classList"></div>
+
+</div>
+
+<script>
+// Load active teacher
+let T = JSON.parse(localStorage.getItem("active_teacher") || "null");
+
+if (!T) {
+    alert("Session expired. Login again.");
+    window.location.href = "teacher-login.html";
+}
+
+document.getElementById("titleName").textContent = `${T.name}'s Classes`;
+
+// LOAD CLASSES
+function getClasses() {
+    let all = JSON.parse(localStorage.getItem("teacher_classes") || "{}");
+    return all[T.email] || [];
+}
+
+function saveClasses(list) {
+    let all = JSON.parse(localStorage.getItem("teacher_classes") || "{}");
+    all[T.email] = list;
+    localStorage.setItem("teacher_classes", JSON.stringify(all));
+}
+
+// ADD NEW CLASS
+function addClass() {
+    let name = document.getElementById("newClassName").value.trim();
+    let subject = document.getElementById("newClassSubject").value.trim();
+    let desc = document.getElementById("newClassDesc").value.trim();
+
+    if (!name || !subject) {
+        alert("Class name & subject required.");
+        return;
+    }
+
+    let classes = getClasses();
+
+    classes.push({
+        id: Date.now(),
+        name,
+        subject,
+        desc,
+        students:[]
+    });
+
+    saveClasses(classes);
+    displayClasses();
+
+    document.getElementById("newClassName").value = "";
+    document.getElementById("newClassSubject").value = "";
+    document.getElementById("newClassDesc").value = "";
+}
+
+// DELETE CLASS
+function deleteClass(id) {
+    let classes = getClasses().filter(c => c.id !== id);
+    saveClasses(classes);
+    displayClasses();
+}
+
+// ADD STUDENT TO CLASS
+function addStudent(id) {
+    let student = prompt("Enter student name:");
+
+    if (!student) return;
+
+    let classes = getClasses();
+
+    let target = classes.find(c => c.id === id);
+    target.students.push(student);
+
+    saveClasses(classes);
+    displayClasses();
+}
+
+// DISPLAY ALL CLASSES
+function displayClasses() {
+    let classes = getClasses();
+    let box = document.getElementById("classList");
+    box.innerHTML = "";
+
+    classes.forEach(cls => {
+        let div = document.createElement("div");
+        div.className = "class-card";
+
+        div.innerHTML = `
+            <h3>${cls.name}</h3>
+            <p><strong>Subject:</strong> ${cls.subject}</p>
+            <p><strong>Description:</strong> ${cls.desc}</p>
+
+            <p><strong>Students:</strong></p>
+            <div>${cls.students.map(s => `<span class="student-tag">${s}</span>`).join("") || "No students added."}</div>
+
+            <button class="btn" onclick="addStudent(${cls.id})">Add Student</button>
+            <button class="delete-btn" onclick="deleteClass(${cls.id})">Delete Class</button>
+        `;
+
+        box.appendChild(div);
+    });
+}
+
+displayClasses();
+</script>
+
+</body>
+</html>
