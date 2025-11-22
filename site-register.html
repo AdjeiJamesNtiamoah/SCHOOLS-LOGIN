@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Register Organization — Flawless Graphics</title>
+  <style>
+    :root{
+      --bg:#071833;
+      --card:#102a57;
+      --accent:#00a8ff;
+      --muted:#cfe8ff;
+      --white:#fff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,#04102a 0%,var(--bg) 100%);
+      font-family:Inter, Poppins, system-ui, Arial, sans-serif;
+      color:var(--white);
+    }
+    .box{
+      width:360px;
+      background:var(--card);
+      padding:28px;
+      border-radius:12px;
+      box-shadow:0 12px 40px rgba(0,0,0,0.45);
+    }
+    h2{ text-align:center; margin:0 0 14px; font-size:20px }
+    label{ display:block; font-size:13px; color:var(--muted); margin-top:8px }
+    input, select{
+      width:100%;
+      padding:12px;
+      margin-top:8px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);
+      color:var(--white);
+      font-size:14px;
+    }
+    .row{ display:flex; gap:8px }
+    .small{ font-size:13px; color:var(--muted); margin-top:12px; text-align:center }
+    .auth-btn{
+      margin-top:14px;
+      width:100%;
+      padding:12px;
+      border-radius:8px;
+      border:0;
+      background:linear-gradient(90deg,var(--accent),#0076d6);
+      color:var(--white);
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(0,0,0,0.25);
+    }
+    .auth-btn:active{ transform:translateY(1px) }
+    .note { font-size:12px; color:#bcd9ff; margin-top:8px }
+    .error { background:#ff4d4f; padding:10px; border-radius:8px; color:white; margin-top:10px; display:none }
+    .success { background:#28a745; padding:10px; border-radius:8px; color:white; margin-top:10px; display:none }
+    a { color:#cfe8ff }
+  </style>
+</head>
+<body>
+  <div class="box" role="form" aria-labelledby="registerHeading">
+    <h2 id="registerHeading">Create Organization Account</h2>
+
+    <label for="orgName">Organization Name</label>
+    <input type="text" id="orgName" placeholder="Flawless Graphics Ltd" autocomplete="organization">
+
+    <label for="fullName">Admin Full Name</label>
+    <input type="text" id="fullName" placeholder="Jane Doe" autocomplete="name">
+
+    <label for="email">Email (Login Username)</label>
+    <input type="email" id="email" placeholder="admin@company.com" autocomplete="email">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Minimum 8 characters" autocomplete="new-password">
+
+    <button class="auth-btn" id="registerBtn">Register</button>
+
+    <div id="msgError" class="error" role="alert"></div>
+    <div id="msgSuccess" class="success" role="status"></div>
+
+    <div class="small">
+      Already registered? <a href="site-login.html">Login</a>
+    </div>
+  </div>
+
+<script>
+/*
+  site-register.html
+  - Stores org admin accounts under localStorage key: "organizations_users"
+  - Passwords are hashed (SHA-256) before saving (client-side hashing).
+  - Redirects to site-login.html on success.
+*/
+
+const USERS_KEY = "organizations_users";
+
+function readUsers(){
+  try { return JSON.parse(localStorage.getItem(USERS_KEY) || "[]"); }
+  catch(e){ console.warn("Failed to parse users", e); return []; }
+}
+
+async function sha256(text) {
+  const enc = new TextEncoder();
+  const data = enc.encode(text);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+function showError(msg){
+  const el = document.getElementById('msgError');
+  el.style.display = 'block';
+  el.textContent = msg;
+  // hide success
+  document.getElementById('msgSuccess').style.display = 'none';
+}
+
+function showSuccess(msg){
+  const el = document.getElementById('msgSuccess');
+  el.style.display = 'block';
+  el.textContent = msg;
+  document.getElementById('msgError').style.display = 'none';
+}
+
+document.getElementById('registerBtn').addEventListener('click', async () => {
+  const org = document.getElementById('orgName').value.trim();
+  const name = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const pw = document.getElementById('password').value;
+
+  // basic validation
+  if (!org || !name || !email || !pw) {
+    showError("Please complete all fields.");
+    return;
+  }
+  if (pw.length < 8) {
+    showError("Password too short (minimum 8 characters).");
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showError("Please enter a valid email address.");
+    return;
+  }
+
+  try {
+    const users = readUsers();
+
+    // prevent duplicate emails per organization list
+    if (users.some(u => u.email === email && u.orgName === org)) {
+      showError("An admin with this email is already registered for this organization.");
+      return;
+    }
+
+    const hashed = await sha256(pw);
+
+    const now = Date.now();
+    const record = {
+      orgName: org,
+      name: name,
+      email: email,
+      pass: hashed,
+      role: "admin",
+      createdAt: now
+    };
+
+    users.push(record);
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+    // Also set the active_org so the rest of the app opens on this org
+    localStorage.setItem('active_org', org);
+
+    showSuccess("Registration successful! Redirecting to login...");
+
+    // small delay for user to read message
+    setTimeout(() => {
+      window.location.href = "site-login.html";
+    }, 900);
+
+  } catch (err) {
+    console.error("Registration error:", err);
+    showError("Unexpected error. Check console for details.");
+  }
+});
+</script>
+</body>
+</html>
