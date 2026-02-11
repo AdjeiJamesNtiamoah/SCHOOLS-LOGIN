@@ -1,72 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flawless Graphics | Home</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flawless Graphics Management Suite</title>
+  <style>
+    :root{
+      --primary:#0b2a55;
+      --secondary:#0ea5e9;
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Roboto,Arial,sans-serif}
+    body{background:var(--bg);color:var(--text)}
+    header{background:linear-gradient(135deg,#0b2a55,#1e3a8a);color:#fff}
+    .nav{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:16px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand h1{font-size:20px}
+    nav a{color:#e5e7eb;text-decoration:none;margin:0 8px;font-size:14px}
+    nav a.active,nav a:hover{color:#fff}
+    .hero{max-width:1200px;margin:auto;padding:80px 16px;text-align:center}
+    .hero h2{font-size:36px;margin-bottom:12px}
+    .hero p{color:#e5e7eb;margin-bottom:24px}
+    .cta button{background:var(--secondary);border:none;color:#fff;padding:12px 18px;margin:6px;border-radius:6px;cursor:pointer}
+    .cta button.secondary{background:#2563eb}
+    section{max-width:1200px;margin:40px auto;padding:0 16px}
+    .section-title{text-align:center;margin-bottom:24px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+    .card{background:var(--card);padding:24px;border-radius:10px;box-shadow:0 10px 20px rgba(0,0,0,.05)}
+    .card h4{margin-bottom:8px}
+    .card p{color:var(--muted);font-size:14px}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+    .stat{background:#0b2a55;color:#fff;padding:24px;border-radius:12px;text-align:center}
+    .stat h3{font-size:28px}
+    .stat span{font-size:13px;color:#c7d2fe}
+    .auth{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+    .auth form{background:#fff;padding:24px;border-radius:12px}
+    .auth input{width:100%;padding:10px;margin:8px 0;border:1px solid #cbd5f5;border-radius:6px}
+    .auth button{width:100%;padding:12px;border:none;border-radius:6px;background:var(--secondary);color:#fff}
+    footer{background:#020617;color:#cbd5f5;padding:24px;margin-top:60px}
+    footer .foot{max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+    footer a{color:#94a3b8;text-decoration:none;font-size:14px}
+    .copy{text-align:center;margin-top:20px;font-size:13px;color:#64748b}
+  </style>
 </head>
 <body>
-
-<header class="main-header">
-  <div class="logo-area">
-    <img src="assets/logo.gif" class="logo" alt="Logo">
-    <div>
-      <h1>FLAWLESS GRAPHICS</h1>
-      <p class="tagline">Truth and Service</p>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <strong>FLAWLESS GRAPHICS</strong>
+      </div>
+      <nav>
+        <a class="active" href="#">Home</a>
+        <a href="#portals">Portals</a>
+        <a href="#features">Features</a>
+        <a href="#auth">Login</a>
+        <a href="#contact">Contact</a>
+      </nav>
     </div>
-  </div>
-
-  <nav>
-    <ul class="nav-links">
-      <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="employee.html">Employee Portal</a></li>
-      <li><a href="hr-dashboard.html">HR Dashboard</a></li>
-      <li><a href="teacher.html">Teacher Portal</a></li>
-      <li><a href="services.html">Services</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-  </nav>
-</header>
-
-<section class="hero-section">
-  <h1>Welcome to the Flawless Graphics Management Suite</h1>
-  <p>Manage Employees, Teachers, Payroll, Attendance, Messaging & more—all in one modern system.</p>
-
-  <div class="hero-buttons">
-    <a href="employee.html" class="btn">Employee Portal</a>
-    <a href="hr-dashboard.html" class="btn">HR Dashboard</a>
-    <a href="teacher.html" class="btn">Teacher Dashboard</a>
-  </div>
-</section>
-
-<section class="features">
-  <h2>Powerful Features</h2>
-
-  <div class="grid-3">
-    <div class="feat-card">
-      <img src="assets/dashboard.png" alt="">
-      <h3>Smart HR Dashboard</h3>
-      <p>Real-time analytics, attendance tracking, payroll, reports & more.</p>
+    <div class="hero">
+      <h2>Welcome to the Flawless Graphics Management Suite</h2>
+      <p>Manage Employees, Teachers, Payroll, Attendance, Messaging & more — all in one modern system.</p>
+      <div class="cta">
+        <button>Employee Portal</button>
+        <button class="secondary">HR Dashboard</button>
+        <button>Teacher Dashboard</button>
+      </div>
     </div>
+  </header>
 
-    <div class="feat-card">
-      <img src="assets/employee.png" alt="">
-      <h3>Employee Management</h3>
-      <p>Store records, monitor attendance, generate reports and automate workflows.</p>
+  <section id="features">
+    <div class="section-title">
+      <h3>Powerful Features</h3>
     </div>
-
-    <div class="feat-card">
-      <img src="assets/teacher.png" alt="">
-      <h3>Teacher Management</h3>
-      <p>Teacher profiles, class tools, digital clock-in, messaging & performance.</p>
+    <div class="grid">
+      <div class="card"><h4>Smart HR Dashboard</h4><p>Real-time analytics, attendance tracking, payroll, reports and insights.</p></div>
+      <div class="card"><h4>Employee Management</h4><p>Centralized records, performance monitoring and automated workflows.</p></div>
+      <div class="card"><h4>Teacher Management</h4><p>Teacher profiles, digital clock-in, class tools and messaging.</p></div>
+      <div class="card"><h4>Messaging System</h4><p>Internal communication between HR, teachers and employees.</p></div>
+      <div class="card"><h4>Attendance & Payroll</h4><p>Accurate attendance with payroll calculation and export.</p></div>
+      <div class="card"><h4>Secure Access</h4><p>Role-based login for HR, teachers and employees.</p></div>
     </div>
-  </div>
-</section>
+  </section>
 
-<footer>
-  <p>© 2025 Flawless Graphics — All Rights Reserved.</p>
-</footer>
+  <section>
+    <div class="section-title"><h3>System Overview</h3></div>
+    <div class="stats">
+      <div class="stat"><h3>3</h3><span>User Roles</span></div>
+      <div class="stat"><h3>24/7</h3><span>System Availability</span></div>
+      <div class="stat"><h3>100%</h3><span>Cloud Ready</span></div>
+      <div class="stat"><h3>Secure</h3><span>Data Protection</span></div>
+    </div>
+  </section>
 
+  <section id="auth">
+    <div class="section-title"><h3>Access Portals</h3></div>
+    <div class="auth">
+      <form>
+        <h4>Employee Login</h4>
+        <input type="text" placeholder="Employee ID" />
+        <input type="password" placeholder="Password" />
+        <button type="button">Login</button>
+      </form>
+      <form>
+        <h4>Teacher Login</h4>
+        <input type="text" placeholder="Teacher ID" />
+        <input type="password" placeholder="Password" />
+        <button type="button">Login</button>
+      </form>
+      <form>
+        <h4>HR / Admin Login</h4>
+        <input type="text" placeholder="Admin Email" />
+        <input type="password" placeholder="Password" />
+        <button type="button">Login</button>
+      </form>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <div class="foot">
+      <div>
+        <h4>Flawless Graphics</h4>
+        <p style="font-size:14px">Truth and Service</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <a href="#">Home</a><br />
+        <a href="#features">Features</a><br />
+        <a href="#auth">Login</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p style="font-size:14px">Email: info@flawlessgraphics.com</p>
+        <p style="font-size:14px">Phone: +233 XXX XXX XXX</p>
+      </div>
+    </div>
+    <div class="copy">© 2026 Flawless Graphics. All rights reserved.</div>
+  </footer>
 </body>
 </html>
